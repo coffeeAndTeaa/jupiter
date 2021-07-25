@@ -1,5 +1,9 @@
 package external;
 
+import com.example.jupiter.entity.Game;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
@@ -12,6 +16,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.Arrays;
+import java.util.List;
 
 public class TwitchClient {
     private static final String TOKEN = "Bearer cj5oxtltj845tv804gwhuc18dyfrt5";
@@ -67,4 +73,37 @@ public class TwitchClient {
             }
         }
     }
+
+    // parse the json string into Game List
+    private List<Game> getGameList(String data) throws TwitchException {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return Arrays.asList(mapper.readValue(data, Game[].class));
+        }  catch (JsonProcessingException e) {
+            e.printStackTrace();
+            throw new TwitchException("Failed to parse the game data from twitch api ");
+        }
+    }
+
+    // return the top limit games from Twitch
+    private List<Game> topGames(int limit) throws TwitchException {
+        if (limit <= 0) {
+            limit = DEFAULT_GAME_LIMIT;
+        }
+        return getGameList(searchTwitch(buildGameURL(TOP_GAME_URL, "",limit)));
+    }
+
+    // search the gameName on Twitch and return Game obj
+    public Game searchGame(String gameName) throws TwitchException {
+        List<Game> myList = getGameList(searchTwitch(buildGameURL(GAME_SEARCH_URL_TEMPLATE, gameName, 0)));
+        if (myList.size() == 0) {
+            return null;
+        } else {
+            return myList.get(0);
+        }
+    }
+
+
+
+
 }

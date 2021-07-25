@@ -1,4 +1,4 @@
-package com.example.jupiter.entity;
+package com.laioffer.jupiter.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonInclude;

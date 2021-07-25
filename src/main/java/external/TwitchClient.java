@@ -1,11 +1,9 @@
 package external;
 
-import com.example.jupiter.entity.Game;
+import com.laioffer.jupiter.entity.Game;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.HttpEntity;
-import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.ResponseHandler;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.impl.client.CloseableHttpClient;
@@ -86,7 +84,7 @@ public class TwitchClient {
     }
 
     // return the top limit games from Twitch
-    private List<Game> topGames(int limit) throws TwitchException {
+    public List<Game> topGames(int limit) throws TwitchException {
         if (limit <= 0) {
             limit = DEFAULT_GAME_LIMIT;
         }

@@ -1,4 +1,4 @@
-package com.example.jupiter;
+package com.laioffer.jupiter;
 
 import java.io.*;
 import javax.servlet.http.*;

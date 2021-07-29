@@ -1,10 +1,10 @@
 package com.laioffer.jupiter.db;
 
 import com.laioffer.jupiter.entity.Item;
+import com.laioffer.jupiter.entity.ItemType;
 
 import java.sql.*;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class MySQLConnection {
     private final Connection conn;
@@ -118,6 +118,40 @@ public class MySQLConnection {
         }
         return favoriteItems;
     }
+
+    public Map<String, List<Item>> getFavoriteItems(String userId) throws MySQLException{
+        if (conn == null) {
+            System.err.println("DB connection failed");
+            throw new MySQLException("failed to connect to the database");
+        }
+        Map<String, List<Item>> itemMap = new HashMap<>();
+        for (ItemType type : ItemType.values()) {
+            itemMap.put(type.toString(), new ArrayList<>());
+        }
+        Set<String> favoriteItemIds = getFavoriteItemIds(userId);
+        String sql = "SELECT * FROM items WHERE id = ?";
+        try {
+            PreparedStatement statement = conn.prepareStatement(sql);
+            for (String itemId : favoriteItemIds) {
+                statement.setString(1, itemId);
+                ResultSet rs = statement.executeQuery();
+                if (rs.next()) {
+                    ItemType itemType = ItemType.valueOf(rs.getString("type"));
+                    Item item = new Item.Builder().id(rs.getString("id")).title(rs.getString("title"))
+                            .url(rs.getString("url")).thumbnailUrl(rs.getString("thumbnail_url"))
+                            .broadcasterName(rs.getString("broadcaster_name")).gameId(rs.getString("game_id")).type(itemType).build();
+                    itemMap.get(rs.getString("type")).add(item);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new MySQLException("failed to get favorite item from database");
+        }
+        return itemMap;
+    }
+
+    // Get favorite game ids for the given user. The returned map includes three entries like {"Video": ["1234", "5678", ...],
+    // "Stream": ["abcd", "efgh", ...], "Clip": ["4321", "5678", ...]}
 
 
 

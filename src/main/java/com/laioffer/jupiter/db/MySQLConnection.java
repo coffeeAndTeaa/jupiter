@@ -152,6 +152,31 @@ public class MySQLConnection {
 
     // Get favorite game ids for the given user. The returned map includes three entries like {"Video": ["1234", "5678", ...],
     // "Stream": ["abcd", "efgh", ...], "Clip": ["4321", "5678", ...]}
+    public Map<String, List<String>> getFavoriteGameIds(Set<String> favoriteItemIds) throws MySQLException {
+        if (conn == null) {
+            System.err.println("DB connection failed");
+            throw new MySQLException("Failed to connect to Database");
+        }
+        Map<String, List<String>> itemMap = new HashMap<>();
+        for (ItemType type : ItemType.values()) {
+            itemMap.put(type.toString(), new ArrayList<>());
+        }
+        String sql = "SELECT game_id, type FROM items WHERE id = ?";
+        try {
+            PreparedStatement statement = conn.prepareStatement(sql);
+            for (String itemId : favoriteItemIds) {
+                statement.setString(1, itemId);
+                ResultSet rs = statement.executeQuery();
+                if (rs.next()) {
+                    itemMap.get(rs.getString("type")).add(rs.getString("game_id"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new MySQLException("Failed to get favorite game ids from Database");
+        }
+        return itemMap;
+    }
 
 
 

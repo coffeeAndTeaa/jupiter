@@ -1,5 +1,7 @@
 package com.laioffer.jupiter.servlet;
 
+import com.fasterxml.jackson.core.JsonParseException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.laioffer.jupiter.entity.Item;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -21,8 +23,13 @@ public class ServletUtil {
         return DigestUtils.md5Hex(userId + DigestUtils.md5Hex(password)).toLowerCase();
     }
 
-    public static <T> T readRequestBody(Class<T> c1, HttpServletRequest request) throws IOException {
-        return null;
+    public static <T> T readRequestBody(Class<T> cl, HttpServletRequest request) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        try {
+            return mapper.readValue(request.getReader(), cl);
+        } catch (JsonParseException | JsonMappingException e) {
+            return null;
+        }
     }
 }
 
